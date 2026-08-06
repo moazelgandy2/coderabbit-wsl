@@ -55,6 +55,7 @@ Heuristics:
 - About to open/merge a PR → `--base main`.
 - Flags combine: `coderabbit review --dir packages/backend --uncommitted --agent`.
 - If even a narrowed scope still seems huge, prefer asking the user taming vs silently reviewing the whole tree.
+- **Keep the diff under the free-plan file ceiling (~150 files).** Even `--uncommitted` can exceed it if the current branch is far ahead of the base; narrow with `--dir <pkg>` (and `--base <closer-commit>` if needed). If the CLI still says "Too many files!", copy the suggested narrower scope it prints rather than guessing.
 
 ## Step 2 — Run the review (PowerShell tool)
 
@@ -116,6 +117,7 @@ Synthesize the output; don't echo the raw stream:
 | `command not found` | Find it first: `wsl bash -lc "command -v coderabbit"`. If empty, the binary isn't on WSL `PATH` — add its folder to `~/.bashrc`/`~/.bash_profile`, or call it via its detected/installed absolute path |
 | `Permission denied` | In WSL: `chmod +x $(command -v coderabbit)` |
 | Empty result, "No changes to review" | Check `git status`; scope too narrow vs changes → add `--include-untracked` / `--base main` |
-| Too many files | Narrow with `--dir <path>` and/or `--uncommitted` |
+| Too many files | The diff exceeded the plan's cap (~150 files) — the CLI prints a suggested narrower scope to copy (`--dir <path>`, or `--base <closer-commit>` when the branch is far ahead). Pick one and re-run |
+| Review limit reached / seat not linked | A usage/seat or rate limit — wait for the reset window, or link an assigned seat / use an Agentic API key (`--api-key` / `--region`). This is an account constraint, not a path/scope error |
 | Timeout | Review can sleep 2–5 min → `run_in_background: true` + generous timeout |
 | Wrong/interleaved shell output | Ensure you ran via the **PowerShell tool**, not Git Bash |
